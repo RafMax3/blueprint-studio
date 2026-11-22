@@ -74,7 +74,19 @@ namespace UnityEngine
         public bool enabled { get; set; }
     }
 
-    public class MonoBehaviour : Behaviour { }
+    public class YieldInstruction { }
+
+    public class WaitForSeconds : YieldInstruction
+    {
+        public WaitForSeconds(float seconds) { }
+    }
+
+    public class Coroutine : YieldInstruction { }
+
+    public class MonoBehaviour : Behaviour
+    {
+        protected Coroutine StartCoroutine(System.Collections.IEnumerator routine) { return null; }
+    }
 
     public static class Debug
     {

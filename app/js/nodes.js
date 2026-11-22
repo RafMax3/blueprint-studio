@@ -4,7 +4,8 @@
   'use strict';
   const BP = (root.BP = root.BP || {});
 
-  const K = { EXEC: 'exec', NUMBER: 'number', STRING: 'string', BOOL: 'bool', ARRAY: 'array', ANY: 'any' };
+  const K = { EXEC: 'exec', NUMBER: 'number', STRING: 'string', BOOL: 'bool', ARRAY: 'array',
+    DICT: 'dict', ANY: 'any' };
   const VAL_TYPES = ['int', 'double', 'string', 'bool'];
 
   BP.K = K;
@@ -596,6 +597,71 @@
       desc: 'Additionne tous les nombres du tableau.',
       inputs: [{ id: 'array', kind: K.ARRAY, label: 'tableau' }],
       outputs: [{ id: 'total', kind: K.NUMBER, label: 'total' }],
+      props: []
+    },
+
+    dict_decl: {
+      title: 'Déclarer dictionnaire',
+      category: 'Dictionnaires',
+      accent: '#8b6ce0',
+      desc: 'Crée un dictionnaire vide : chaque clé associe une valeur.',
+      inputs: [{ id: 'in', kind: K.EXEC }],
+      outputs: [{ id: 'out', kind: K.EXEC }],
+      props: [
+        txt('name', 'Variable', 'dico'),
+        sel('ktype', 'Clés', 'string', ['string', 'int']),
+        sel('vtype', 'Valeurs', 'int', VAL_TYPES)
+      ]
+    },
+
+    dict_set: {
+      title: 'Écrire dans le dictionnaire',
+      category: 'Dictionnaires',
+      accent: '#8b6ce0',
+      desc: 'Associe une valeur à une clé (remplace la valeur existante).',
+      inputs: [
+        { id: 'in', kind: K.EXEC },
+        { id: 'dict', kind: K.DICT, label: 'dictionnaire' },
+        { id: 'key', kind: K.ANY, label: 'clé' },
+        { id: 'value', kind: K.ANY, label: 'valeur' }
+      ],
+      outputs: [{ id: 'out', kind: K.EXEC }],
+      props: []
+    },
+
+    dict_get: {
+      title: 'Lire dans le dictionnaire',
+      category: 'Dictionnaires',
+      accent: '#8b6ce0',
+      desc: 'Renvoie la valeur associée à une clé, ou la valeur par défaut du type si la clé est absente.',
+      inputs: [
+        { id: 'dict', kind: K.DICT, label: 'dictionnaire' },
+        { id: 'key', kind: K.ANY, label: 'clé' }
+      ],
+      outputs: [{ id: 'value', kind: K.ANY, label: 'valeur' }],
+      props: []
+    },
+
+    dict_has: {
+      title: 'Clé présente ?',
+      category: 'Dictionnaires',
+      accent: '#8b6ce0',
+      desc: 'Indique si le dictionnaire contient la clé donnée.',
+      inputs: [
+        { id: 'dict', kind: K.DICT, label: 'dictionnaire' },
+        { id: 'key', kind: K.ANY, label: 'clé' }
+      ],
+      outputs: [{ id: 'result', kind: K.BOOL, label: 'présente' }],
+      props: []
+    },
+
+    dict_len: {
+      title: 'Taille du dictionnaire',
+      category: 'Dictionnaires',
+      accent: '#8b6ce0',
+      desc: 'Renvoie le nombre de paires clé/valeur.',
+      inputs: [{ id: 'dict', kind: K.DICT, label: 'dictionnaire' }],
+      outputs: [{ id: 'length', kind: K.NUMBER, label: 'taille' }],
       props: []
     },
 

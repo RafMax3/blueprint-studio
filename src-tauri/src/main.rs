@@ -403,6 +403,10 @@ const EXAMPLES: &[(&str, &str)] = &[
         "tableau.blueprint.json",
         include_str!("../../examples/tableau.blueprint.json"),
     ),
+    (
+        "dictionnaire.blueprint.json",
+        include_str!("../../examples/dictionnaire.blueprint.json"),
+    ),
 ];
 
 fn open_examples_folder(app: &AppHandle) {

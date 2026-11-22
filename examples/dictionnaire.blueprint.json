@@ -1,0 +1,402 @@
+{
+  "format": "blueprint-studio",
+  "version": 1,
+  "name": "Dictionnaire",
+  "nodes": [
+    {
+      "id": "start",
+      "type": "event_start",
+      "x": 80,
+      "y": 60,
+      "props": {}
+    },
+    {
+      "id": "decl",
+      "type": "dict_decl",
+      "x": 80,
+      "y": 200,
+      "props": {
+        "name": "ages",
+        "ktype": "string",
+        "vtype": "int"
+      }
+    },
+    {
+      "id": "ecrireAda",
+      "type": "dict_set",
+      "x": 80,
+      "y": 340,
+      "props": {}
+    },
+    {
+      "id": "lireAges1",
+      "type": "get_var",
+      "x": 430,
+      "y": 360,
+      "props": {
+        "name": "ages"
+      }
+    },
+    {
+      "id": "cleAda",
+      "type": "literal_string",
+      "x": 430,
+      "y": 470,
+      "props": {
+        "value": "ada"
+      }
+    },
+    {
+      "id": "ageAda",
+      "type": "literal_number",
+      "x": 430,
+      "y": 560,
+      "props": {
+        "value": "36"
+      }
+    },
+    {
+      "id": "ecrireAlan",
+      "type": "dict_set",
+      "x": 80,
+      "y": 470,
+      "props": {}
+    },
+    {
+      "id": "lireAges2",
+      "type": "get_var",
+      "x": 430,
+      "y": 700,
+      "props": {
+        "name": "ages"
+      }
+    },
+    {
+      "id": "cleAlan",
+      "type": "literal_string",
+      "x": 430,
+      "y": 800,
+      "props": {
+        "value": "alan"
+      }
+    },
+    {
+      "id": "ageAlan",
+      "type": "literal_number",
+      "x": 430,
+      "y": 890,
+      "props": {
+        "value": "41"
+      }
+    },
+    {
+      "id": "afficherTaille",
+      "type": "print",
+      "x": 80,
+      "y": 640,
+      "props": {}
+    },
+    {
+      "id": "taille",
+      "type": "dict_len",
+      "x": 430,
+      "y": 980,
+      "props": {}
+    },
+    {
+      "id": "lireAges3",
+      "type": "get_var",
+      "x": 760,
+      "y": 1000,
+      "props": {
+        "name": "ages"
+      }
+    },
+    {
+      "id": "afficherAge",
+      "type": "print",
+      "x": 80,
+      "y": 800,
+      "props": {}
+    },
+    {
+      "id": "lireAge",
+      "type": "dict_get",
+      "x": 430,
+      "y": 1110,
+      "props": {}
+    },
+    {
+      "id": "lireAges4",
+      "type": "get_var",
+      "x": 760,
+      "y": 1130,
+      "props": {
+        "name": "ages"
+      }
+    },
+    {
+      "id": "cleAda2",
+      "type": "literal_string",
+      "x": 760,
+      "y": 1230,
+      "props": {
+        "value": "ada"
+      }
+    },
+    {
+      "id": "afficherPresente",
+      "type": "print",
+      "x": 80,
+      "y": 960,
+      "props": {}
+    },
+    {
+      "id": "presente",
+      "type": "dict_has",
+      "x": 430,
+      "y": 1260,
+      "props": {}
+    },
+    {
+      "id": "lireAges5",
+      "type": "get_var",
+      "x": 760,
+      "y": 1280,
+      "props": {
+        "name": "ages"
+      }
+    },
+    {
+      "id": "cleAda3",
+      "type": "literal_string",
+      "x": 760,
+      "y": 1380,
+      "props": {
+        "value": "ada"
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": "w1",
+      "from": {
+        "node": "start",
+        "pin": "out"
+      },
+      "to": {
+        "node": "decl",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w2",
+      "from": {
+        "node": "decl",
+        "pin": "out"
+      },
+      "to": {
+        "node": "ecrireAda",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w3",
+      "from": {
+        "node": "lireAges1",
+        "pin": "value"
+      },
+      "to": {
+        "node": "ecrireAda",
+        "pin": "dict"
+      }
+    },
+    {
+      "id": "w4",
+      "from": {
+        "node": "cleAda",
+        "pin": "value"
+      },
+      "to": {
+        "node": "ecrireAda",
+        "pin": "key"
+      }
+    },
+    {
+      "id": "w5",
+      "from": {
+        "node": "ageAda",
+        "pin": "value"
+      },
+      "to": {
+        "node": "ecrireAda",
+        "pin": "value"
+      }
+    },
+    {
+      "id": "w6",
+      "from": {
+        "node": "ecrireAda",
+        "pin": "out"
+      },
+      "to": {
+        "node": "ecrireAlan",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w7",
+      "from": {
+        "node": "lireAges2",
+        "pin": "value"
+      },
+      "to": {
+        "node": "ecrireAlan",
+        "pin": "dict"
+      }
+    },
+    {
+      "id": "w8",
+      "from": {
+        "node": "cleAlan",
+        "pin": "value"
+      },
+      "to": {
+        "node": "ecrireAlan",
+        "pin": "key"
+      }
+    },
+    {
+      "id": "w9",
+      "from": {
+        "node": "ageAlan",
+        "pin": "value"
+      },
+      "to": {
+        "node": "ecrireAlan",
+        "pin": "value"
+      }
+    },
+    {
+      "id": "w10",
+      "from": {
+        "node": "ecrireAlan",
+        "pin": "out"
+      },
+      "to": {
+        "node": "afficherTaille",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w11",
+      "from": {
+        "node": "taille",
+        "pin": "length"
+      },
+      "to": {
+        "node": "afficherTaille",
+        "pin": "value"
+      }
+    },
+    {
+      "id": "w12",
+      "from": {
+        "node": "lireAges3",
+        "pin": "value"
+      },
+      "to": {
+        "node": "taille",
+        "pin": "dict"
+      }
+    },
+    {
+      "id": "w13",
+      "from": {
+        "node": "afficherTaille",
+        "pin": "out"
+      },
+      "to": {
+        "node": "afficherAge",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w14",
+      "from": {
+        "node": "lireAge",
+        "pin": "value"
+      },
+      "to": {
+        "node": "afficherAge",
+        "pin": "value"
+      }
+    },
+    {
+      "id": "w15",
+      "from": {
+        "node": "lireAges4",
+        "pin": "value"
+      },
+      "to": {
+        "node": "lireAge",
+        "pin": "dict"
+      }
+    },
+    {
+      "id": "w16",
+      "from": {
+        "node": "cleAda2",
+        "pin": "value"
+      },
+      "to": {
+        "node": "lireAge",
+        "pin": "key"
+      }
+    },
+    {
+      "id": "w17",
+      "from": {
+        "node": "afficherAge",
+        "pin": "out"
+      },
+      "to": {
+        "node": "afficherPresente",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w18",
+      "from": {
+        "node": "presente",
+        "pin": "result"
+      },
+      "to": {
+        "node": "afficherPresente",
+        "pin": "value"
+      }
+    },
+    {
+      "id": "w19",
+      "from": {
+        "node": "lireAges5",
+        "pin": "value"
+      },
+      "to": {
+        "node": "presente",
+        "pin": "dict"
+      }
+    },
+    {
+      "id": "w20",
+      "from": {
+        "node": "cleAda3",
+        "pin": "value"
+      },
+      "to": {
+        "node": "presente",
+        "pin": "key"
+      }
+    }
+  ]
+}

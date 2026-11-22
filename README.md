@@ -43,7 +43,7 @@ pour les outils de vérification et le bundler (`npm install` une fois).
    npm run build          :: compile en release
    npm run installer      :: produit l'installateur NSIS
    npm run dist           :: compile en release et copie les artefacts dans dist/
-   npm test               :: exemples + couverture 67 nœuds + tests unitaires Rust
+   npm test               :: exemples + couverture 72 nœuds + cible Unity + tests Rust
    npm run smoke          :: test d'interface dans la vraie fenêtre WebView2
    ```
 
@@ -117,7 +117,7 @@ qu'une seule entrée à la fois (la nouvelle liaison remplace l'ancienne).
 
 ## Nœuds disponibles
 
-**67 nœuds** répartis en 14 catégories (recherche par nom dans la palette).
+**72 nœuds** répartis en 15 catégories (recherche par nom dans la palette).
 
 | Catégorie | Nœuds |
 | --- | --- |
@@ -129,6 +129,7 @@ qu'une seule entrée à la fois (la nouvelle liaison remplace l'ancienne).
 | Texte (8) | Concaténer · Longueur texte · Majuscules / minuscules · Remplacer dans texte · Texte contient · Sous-chaîne · Découper texte · Joindre tableau |
 | Conversions (3) | En entier · En décimal · En texte |
 | Tableaux (14) | Déclarer tableau · Créer tableau · Longueur tableau · Élément du tableau · Ajouter au tableau · Définir élément · Insérer dans tableau · Supprimer élément · Tableau contient · Indice d’un élément · Trier tableau · Inverser tableau · Vider tableau · Somme du tableau |
+| Dictionnaires (5) | Déclarer dictionnaire · Écrire dans le dictionnaire · Lire dans le dictionnaire · Clé présente ? · Taille du dictionnaire |
 | Logique (4) | Comparaison (`== != < > <= >=`) · Et / Ou · Non · Si / Sinon |
 | Boucles (5) | Boucle Pour · Boucle Tant que · Arrêter la boucle · Continuer la boucle · Boucle Pour chaque |
 | Fonctions (4) | Définir fonction · Appeler fonction · Retourner · Appeler (instruction) |
@@ -146,6 +147,16 @@ type d'élément (`int`, `double`, `string`, `bool`), puis « Définir variable 
 tableau » la remplissent. Le type des éléments d'un tableau littéral est déduit du contenu :
 `1, 2, 3` → `int`, `1.5, 2` → `double`, `true, false` → `bool`, sinon `string`. Le code généré
 utilise des types natifs : `list` (Python), `List<T>` (C#), `vector<T>` (C++).
+
+### Dictionnaires
+
+« Déclarer dictionnaire » crée une variable vide qui associe des **clés** (`string` ou `int`)
+à des **valeurs** (`int`, `double`, `string`, `bool`) ; les nœuds « Écrire », « Lire », « Clé
+présente ? » et « Taille » travaillent sur cette variable. Comme pour les tableaux, reliez
+« Lire variable » à la broche dictionnaire des nœuds qui le modifient. Le code généré utilise
+`dict` (Python), `Dictionary<K, V>` (C#, Unity) et `std::unordered_map<K, V>` (C++), et
+« Lire » renvoie la **valeur par défaut du type** quand la clé est absente (`0`, `""`,
+`False`/`false`).
 
 Les nœuds qui modifient un tableau sur place (ajouter, trier, vider…) ont besoin de la
 variable : reliez « Lire variable » à leur broche tableau, sinon la modification est perdue
@@ -197,11 +208,16 @@ L'onglet **Unity** génère un script C# directement utilisable dans Unity 6 :
 Le nom de fichier proposé à l'export est celui de la classe : Unity exige qu'ils soient
 identiques (`Somme15.cs`). L'export s'appelle donc directement `Somme15.cs`.
 
-Limites assumées en Unity : « Attendre » utilise `Thread.Sleep` (bloque le fil principal :
-préférez une coroutine écrite à la main), « Afficher sans retour » s'affiche quand même sur
-une ligne, et les fichiers ne fonctionnent pas sur la cible WebGL.
+« Attendre » devient une **coroutine** (`StartCoroutine` + `yield return new WaitForSeconds`) :
+le jeu continue de tourner pendant l'attente, sans bloquer le fil principal.
 
-`npm run unity` vérifie cette cible pour de vrai : les quatre exemples et le graphe de
+Limites assumées en Unity : « Afficher sans retour » s'affiche quand même sur une ligne, et
+les fichiers ne fonctionnent pas sur la cible WebGL.
+
+Le guide pas à pas (créer le projet, exporter, attacher le script, régler les champs) est
+dans [`docs/unity.md`](docs/unity.md).
+
+`npm run unity` vérifie cette cible pour de vrai : les cinq exemples et le graphe de
 couverture complet sont générés puis **compilés avec C# 9 et `netstandard2.1`** contre des
 classes `UnityEngine` minimales (`MonoBehaviour`, `Debug`, `Application`, `SerializeField`,
 `Tooltip`, `Header`). Sur cette machine : compilation réussie, sans erreur.
@@ -213,7 +229,9 @@ Menu **Exemples** ou liste « Exemples… » dans la barre d'outils :
 * **Bonjour** — affichage d'un texte ;
 * **Somme 1..5** — variable, boucle, calcul (affiche `10`) ;
 * **Fonction et condition** — fonction `est_pair`, comparaison, Si/Sinon ;
-* **Somme d'un tableau** — tableau littéral et boucle Pour chaque (affiche `43`).
+* **Somme d'un tableau** — tableau littéral et boucle Pour chaque (affiche `43`) ;
+* **Dictionnaire** — clés texte, écriture, lecture, test de présence et taille
+  (affiche `2`, `36`, `True`).
 
 Ils sont aussi disponibles en fichiers dans `examples/*.blueprint.json`.
 
@@ -259,7 +277,7 @@ app/js/view.js             canvas : nœuds, câbles, zoom, glisser-déposer, und
 app/js/app.js              palette, onglets, fichiers, raccourcis, brouillon
 app/js/desktop-bridge.js   pont window.desktop → noyau Rust (IPC Tauri)
 examples/                  graphiques d'exemple (livrés avec l'application)
-tools/                     vérifications (exemples, couverture 67 nœuds, cible Unity,
+tools/                     vérifications (exemples, couverture 72 nœuds, cible Unity,
                            interface WebView2), génération des exemples, de l'icône et
                            copie des artefacts
 .toolchain/                compilateur C++ portable local (facultatif, ignoré par git)
@@ -268,7 +286,7 @@ tools/                     vérifications (exemples, couverture 67 nœuds, cible
 ## Vérifications
 
 ```bat
-npm test                     :: exemples + couverture 67 nœuds + cible Unity + tests Rust
+npm test                     :: exemples + couverture 72 nœuds + cible Unity + tests Rust
 node tools/check.js --code   :: affiche le code généré
 npm run unity                :: génère puis compile la cible Unity (C# 9, netstandard2.1)
 npm run smoke                :: test d'interface dans la vraie fenêtre WebView2
@@ -288,21 +306,22 @@ Rust↔JS et les trois générateurs fonctionnent dans WebView2. Le résultat ob
 18 nœuds / 16 liaisons, aucun problème, Python 464 caractères, C# 631, C++ 939, et le
 graphique passé en argument bien chargé au démarrage.
 
-Résultats obtenus sur cette machine : génération sans erreur des quatre exemples dans les
+Résultats obtenus sur cette machine : génération sans erreur des cinq exemples dans les
 quatre cibles, script Unity **compilé** en C# 9 / `netstandard2.1` (`npm run unity`), code
 Python **exécuté** (`10`, `C'est impair`, `43`), code C# **compilé et
 exécuté** avec le SDK .NET, test d'interface réussi (câblage, déplacement, annulation,
-suppression, rendu des 67 nœuds et de toutes leurs broches).
+suppression, rendu des 72 nœuds et de toutes leurs broches).
 
-`npm run coverage` construit un graphe de **215 nœuds couvrant les 67 types**, génère les trois
+`npm run coverage` construit un graphe de **231 nœuds couvrant les 72 types**, génère les quatre
 langages et, si `BP_CXX` (ou `g++`/`clang++` dans le `PATH`) est disponible, **compile le C++**
 avec `-std=c++17 -Wall -Wextra`. Sur cette machine (GCC 16, w64devkit) : 0 erreur de
 génération, compilation **sans le moindre avertissement**, et exécution comparée des trois
 programmes — **C# et C++ produisent exactement la même sortie** (hors nombre aléatoire et
 date). Python s'exécute aussi, avec trois écarts de langage documentés ci-dessous.
 
-Les quatre exemples sont également compilés et exécutés en C++ (`Bonjour`, `10`,
-`C'est impair`, `43`), avec les mêmes sorties qu'en Python.
+Les cinq exemples sont également compilés et exécutés en C++ (`Bonjour`, `10`,
+`C'est impair`, `43`, puis `2`/`36`/`True` pour le dictionnaire), avec les mêmes sorties
+qu'en Python et en C#.
 
 Côté livraison : `npm run installer` construit le bundle NSIS (1,1 Mo, français, installation
 par utilisateur, désinstallation, WebView2 pris en charge) et `npm run dist` copie les deux
@@ -326,7 +345,7 @@ Artefacts produits :
 * `dist/Blueprint Studio (Rust).exe` — version portable, un seul fichier.
 
 L'icône (exe, barre des tâches et installateur) vient de `src-tauri/icons/icon.ico`, généré
-par `tools/make-icon.js` sans dépendance graphique. Les quatre exemples sont **embarqués dans
+par `tools/make-icon.js` sans dépendance graphique. Les cinq exemples sont **embarqués dans
 l'exécutable** (`include_str!`) et recopiés au premier lancement dans
 `%APPDATA%\com.blueprintstudio.app\exemples`, où le menu `Exemples → Ouvrir le dossier des
 exemples` les retrouve une fois installé.

@@ -41,6 +41,7 @@
     /* champs [SerializeField] générés pour les nœuds de saisie (cible Unity) */
     this.unityFields = [];
     this.unityIoWarned = false;
+    this.unityWait = false;
   }
 
   Generator.prototype.isPy = function () { return this.lang === 'python'; };
@@ -242,12 +243,60 @@
     return this.arrayTypes().get(BP.sanitizeIdent(src.props.name, 'liste')) || null;
   };
 
+  /** Noms des variables déclarées comme dictionnaires. */
+  Generator.prototype.dictVars = function () {
+    if (!this._dictVars) {
+      const names = new Set();
+      this.graph.nodes.forEach(function (n) {
+        if (n.type === 'dict_decl') names.add(BP.sanitizeIdent(n.props.name, 'dico'));
+      });
+      this._dictVars = names;
+    }
+    return this._dictVars;
+  };
+
+  /** Types de clés et de valeurs des dictionnaires déclarés. */
+  Generator.prototype.dictTypes = function () {
+    if (!this._dictTypes) {
+      const types = new Map();
+      this.graph.nodes.forEach(function (n) {
+        if (n.type !== 'dict_decl') return;
+        types.set(BP.sanitizeIdent(n.props.name, 'dico'), {
+          key: BP.VAL_TYPES.indexOf(n.props.ktype) === -1 ? 'string' : n.props.ktype,
+          value: BP.VAL_TYPES.indexOf(n.props.vtype) === -1 ? 'int' : n.props.vtype
+        });
+      });
+      this._dictTypes = types;
+    }
+    return this._dictTypes;
+  };
+
+  /** Types d'un dictionnaire relié à une broche (via « Lire variable »). */
+  Generator.prototype.dictInfoOf = function (node, pinId) {
+    const wire = P.wireInto(this.graph, node.id, pinId);
+    if (!wire) return null;
+    const src = this.node(wire.from.node);
+    if (!src || src.type !== 'get_var') return null;
+    return this.dictTypes().get(BP.sanitizeIdent(src.props.name, 'dico')) || null;
+  };
+
+  /** Valeur par défaut d'un type, pour « Lire dans le dictionnaire ». */
+  Generator.prototype.defaultOf = function (type) {
+    if (type === 'string') return '""';
+    if (type === 'bool') return this.isPy() ? 'False' : 'false';
+    if (type === 'double') return '0.0';
+    return '0';
+  };
+
   /** Type de la broche de sortie reliée à une entrée (null si rien n'est relié). */
   Generator.prototype.pinKindOf = function (node, pinId) {
     const wire = P.wireInto(this.graph, node.id, pinId);
     if (!wire) return null;
     const src = this.node(wire.from.node);
     if (!src) return null;
+    if (src.type === 'get_var' && this.dictVars().has(BP.sanitizeIdent(src.props.name, 'x'))) {
+      return BP.K.DICT;
+    }
     if (src.type === 'get_var' && this.arrayVars().has(BP.sanitizeIdent(src.props.name, 'x'))) {
       return BP.K.ARRAY;
     }
@@ -351,6 +400,31 @@
         this.need('fstream');
         this.need('sstream');
         return 'bp_lire_fichier(' + chemin + ')';
+      }
+      case 'dict_get': {
+        const dict = this.expr(node, 'dict');
+        const key = this.expr(node, 'key');
+        const info = this.dictInfoOf(node, 'dict');
+        if (this.isPy()) return dict + '.get(' + key + ', ' + this.defaultOf(info ? info.value : 'int') + ')';
+        this.need('dictGet');
+        if (this.isCs()) return 'BpLireDico(' + dict + ', ' + key + ')';
+        this.need('unordered_map');
+        return 'bp_lire_dico(' + dict + ', ' + key + ')';
+      }
+      case 'dict_has': {
+        const dict = this.expr(node, 'dict');
+        const key = this.expr(node, 'key');
+        if (this.isPy()) return '(' + key + ' in ' + dict + ')';
+        if (this.isCs()) return dict + '.ContainsKey(' + key + ')';
+        this.need('unordered_map');
+        return '(' + dict + '.find(' + key + ') != ' + dict + '.end())';
+      }
+      case 'dict_len': {
+        const dict = this.expr(node, 'dict');
+        if (this.isPy()) return 'len(' + dict + ')';
+        if (this.isCs()) return dict + '.Count';
+        this.need('unordered_map');
+        return '(int)(' + dict + '.size())';
       }
       case 'random_number': {
         const a = this.expr(node, 'min');
@@ -636,6 +710,12 @@
 
   Generator.prototype.st_wait = function (node, indent, out) {
     const seconds = this.expr(node, 'seconds');
+    if (this.isUnity()) {
+      /* Coroutine : le jeu continue de tourner pendant l'attente. */
+      this.unityWait = true;
+      out.push(this.indent(indent) + 'yield return new WaitForSeconds((float)(' + seconds + '));');
+      return this.nextOf(node, 'out');
+    }
     if (this.isPy()) {
       this.need('time');
       out.push(this.indent(indent) + 'time.sleep(' + seconds + ')');
@@ -770,6 +850,32 @@
     } else {
       out.push(this.indent(indent) + 'bp_supprimer_fichier(' + chemin + ');');
     }
+    return this.nextOf(node, 'out');
+  };
+
+  Generator.prototype.st_dict_decl = function (node, indent, out) {
+    const name = BP.sanitizeIdent(node.props.name, 'dico');
+    const info = this.dictTypes().get(name) || { key: 'string', value: 'int' };
+    if (this.isPy()) {
+      out.push(this.indent(indent) + name + ' = {}');
+    } else if (this.isCs()) {
+      this.need('list');
+      out.push(this.indent(indent) + 'Dictionary<' + this.mapType(info.key) + ', ' +
+        this.mapType(info.value) + '> ' + name + ' = new Dictionary<' +
+        this.mapType(info.key) + ', ' + this.mapType(info.value) + '>();');
+    } else {
+      this.need('unordered_map');
+      out.push(this.indent(indent) + 'unordered_map<' + info.key + ', ' + info.value +
+        '> ' + name + ';');
+    }
+    return this.nextOf(node, 'out');
+  };
+
+  Generator.prototype.st_dict_set = function (node, indent, out) {
+    const dict = this.expr(node, 'dict');
+    const key = this.expr(node, 'key');
+    const value = this.expr(node, 'value');
+    out.push(this.indent(indent) + dict + '[' + key + '] = ' + value + (this.isPy() ? '' : ';'));
     return this.nextOf(node, 'out');
   };
 
@@ -1036,6 +1142,17 @@
 
   Generator.prototype.csHelpers = function () {
     const blocks = [];
+    if (this.needs.has('dictGet')) {
+      this.need('list');
+      blocks.push([
+        '    // Valeur associee a une cle, ou valeur par defaut du type.',
+        '    static TV BpLireDico<TK, TV>(Dictionary<TK, TV> dico, TK cle)',
+        '    {',
+        '        TV valeur;',
+        '        return dico.TryGetValue(cle, out valeur) ? valeur : default(TV);',
+        '    }'
+      ]);
+    }
     if (this.needs.has('saisie')) {
       blocks.push([
         '    static string BpLireSaisie(string invite)',
@@ -1167,6 +1284,17 @@
 
   Generator.prototype.cppHelpers = function () {
     const blocks = [];
+    if (this.needs.has('dictGet')) {
+      this.need('unordered_map');
+      blocks.push([
+        'template <typename K, typename V, typename C>',
+        'V bp_lire_dico(const unordered_map<K, V>& dico, const C& cle)',
+        '{',
+        '    auto it = dico.find(cle);',
+        '    return it == dico.end() ? V() : it->second;',
+        '}'
+      ]);
+    }
 
     /* Dépendances entre aides, résolues avant l'assemblage des blocs. */
     if (this.needs.has('texte') || this.needs.has('joindre') || this.needs.has('afficheTableau')) {
@@ -1742,10 +1870,10 @@
     } else if (this.isUnity()) {
       /* Cible Unity 6 : C# 9, .NET Standard 2.1, classe MonoBehaviour. */
       lines.push('using System;');
+      if (this.unityWait) lines.push('using System.Collections;');
       if (this.needs.has('list')) lines.push('using System.Collections.Generic;');
       if (this.needs.has('io')) lines.push('using System.IO;');
       if (this.needs.has('linq')) lines.push('using System.Linq;');
-      if (this.needs.has('threading')) lines.push('using System.Threading;');
       lines.push('using UnityEngine;');
       lines.push('');
       lines.push('public class ' + this.unityClass() + ' : MonoBehaviour');
@@ -1767,12 +1895,25 @@
         lines.push.apply(lines, block);
         lines.push('');
       });
-      lines.push('    void Start()');
-      lines.push('    {');
-      lines.push('        // Unity travaille en culture invariante : aucune modification globale.');
-      if (entry.length) lines.push.apply(lines, entry);
-      else lines.push('        // (aucune instruction)');
-      lines.push('    }');
+      if (this.unityWait) {
+        lines.push('    void Start()');
+        lines.push('    {');
+        lines.push('        StartCoroutine(BpExecuter());');
+        lines.push('    }');
+        lines.push('');
+        lines.push('    // Coroutine : les attentes ne figent pas le jeu.');
+        lines.push('    IEnumerator BpExecuter()');
+        lines.push('    {');
+        if (entry.length) lines.push.apply(lines, entry);
+        else lines.push('        yield break;');
+        lines.push('    }');
+      } else {
+        lines.push('    void Start()');
+        lines.push('    {');
+        if (entry.length) lines.push.apply(lines, entry);
+        else lines.push('        // (aucune instruction)');
+        lines.push('    }');
+      }
       lines.push('}');
     } else if (this.isCs()) {
       lines.push('using System;');
@@ -1807,6 +1948,7 @@
       if (this.needs.has('sstream')) lines.push('#include <sstream>');
       if (this.needs.has('vector')) lines.push('#include <vector>');
       if (this.needs.has('vector')) lines.push('#include <cstddef>');
+      if (this.needs.has('unordered_map')) lines.push('#include <unordered_map>');
       if (this.needs.has('cmath')) lines.push('#include <cmath>');
       if (this.needs.has('algorithm')) lines.push('#include <algorithm>');
       if (this.needs.has('numeric')) lines.push('#include <numeric>');

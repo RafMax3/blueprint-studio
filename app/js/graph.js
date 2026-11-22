@@ -120,6 +120,7 @@
     graph.nodes.forEach(function (n) {
       if (n.type === 'var_decl') names.add(BP.sanitizeIdent(n.props.name, 'x'));
       if (n.type === 'array_decl') names.add(BP.sanitizeIdent(n.props.name, 'liste'));
+      if (n.type === 'dict_decl') names.add(BP.sanitizeIdent(n.props.name, 'dico'));
       if (n.type === 'for_each') names.add(BP.sanitizeIdent(n.props.var, 'element'));
       if (n.type === 'for_range') names.add(BP.sanitizeIdent(n.props.var, 'i'));
       if (n.type === 'function_def') {

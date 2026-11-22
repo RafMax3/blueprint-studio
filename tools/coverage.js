@@ -231,9 +231,29 @@ L(read('nombres'), 'value', clear, 'array');
 step('array_decl', { name: 'drapeaux', etype: 'bool' });
 const setDrapeaux = step('set_var', { name: 'drapeaux' });
 L(N('array_new', { items: 'true, false' }), 'value', setDrapeaux, 'value');
-show(read('drapeaux'), 'value');
+show(read('drapeaux'), 'value');  /* Dictionnaires */
+  const dico = step('dict_decl', { name: 'ages', ktype: 'string', vtype: 'int' });
+  const ecrireDico = step('dict_set');
+  L(read('ages'), 'value', ecrireDico, 'dict');
+  L(str('ada'), 'value', ecrireDico, 'key');
+  L(num(36), 'value', ecrireDico, 'value');
 
-/* Boucles */
+  const lireDico = N('dict_get');
+  L(read('ages'), 'value', lireDico, 'dict');
+  L(str('ada'), 'value', lireDico, 'key');
+  show(lireDico, 'value');
+
+  const aCle = N('dict_has');
+  L(read('ages'), 'value', aCle, 'dict');
+  L(str('ada'), 'value', aCle, 'key');
+  show(aCle, 'result');
+
+  const tailleDico = N('dict_len');
+  L(read('ages'), 'value', tailleDico, 'dict');
+  show(tailleDico, 'length');
+  void dico;
+
+  /* Boucles */
 const range = N('for_range', { var: 'i' });
 L(tail.node, tail.pin, range, 'in');
 L(num(3), 'value', range, 'count');
