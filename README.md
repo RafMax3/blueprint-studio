@@ -268,7 +268,7 @@ tools/                     vérifications (exemples, couverture 67 nœuds, cible
 ## Vérifications
 
 ```bat
-npm test                     :: exemples + couverture 67 nœuds + tests unitaires Rust
+npm test                     :: exemples + couverture 67 nœuds + cible Unity + tests Rust
 node tools/check.js --code   :: affiche le code généré
 npm run unity                :: génère puis compile la cible Unity (C# 9, netstandard2.1)
 npm run smoke                :: test d'interface dans la vraie fenêtre WebView2
@@ -289,7 +289,8 @@ Rust↔JS et les trois générateurs fonctionnent dans WebView2. Le résultat ob
 graphique passé en argument bien chargé au démarrage.
 
 Résultats obtenus sur cette machine : génération sans erreur des quatre exemples dans les
-trois langages, code Python **exécuté** (`10`, `C'est impair`, `43`), code C# **compilé et
+quatre cibles, script Unity **compilé** en C# 9 / `netstandard2.1` (`npm run unity`), code
+Python **exécuté** (`10`, `C'est impair`, `43`), code C# **compilé et
 exécuté** avec le SDK .NET, test d'interface réussi (câblage, déplacement, annulation,
 suppression, rendu des 67 nœuds et de toutes leurs broches).
 
