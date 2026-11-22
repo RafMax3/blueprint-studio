@@ -1,0 +1,54 @@
+{
+  "format": "blueprint-studio",
+  "version": 1,
+  "name": "Bonjour",
+  "nodes": [
+    {
+      "id": "start",
+      "type": "event_start",
+      "x": 80,
+      "y": 80,
+      "props": {}
+    },
+    {
+      "id": "afficher",
+      "type": "print",
+      "x": 80,
+      "y": 230,
+      "props": {}
+    },
+    {
+      "id": "texte",
+      "type": "literal_string",
+      "x": 430,
+      "y": 250,
+      "props": {
+        "value": "Bonjour depuis Blueprint Studio !"
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": "w1",
+      "from": {
+        "node": "start",
+        "pin": "out"
+      },
+      "to": {
+        "node": "afficher",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w2",
+      "from": {
+        "node": "texte",
+        "pin": "value"
+      },
+      "to": {
+        "node": "afficher",
+        "pin": "value"
+      }
+    }
+  ]
+}

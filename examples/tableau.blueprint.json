@@ -1,0 +1,195 @@
+{
+  "format": "blueprint-studio",
+  "version": 1,
+  "name": "Somme d’un tableau",
+  "nodes": [
+    {
+      "id": "start",
+      "type": "event_start",
+      "x": 80,
+      "y": 60,
+      "props": {}
+    },
+    {
+      "id": "decl",
+      "type": "var_decl",
+      "x": 80,
+      "y": 200,
+      "props": {
+        "name": "total",
+        "vtype": "int"
+      }
+    },
+    {
+      "id": "each",
+      "type": "for_each",
+      "x": 80,
+      "y": 330,
+      "props": {
+        "var": "element"
+      }
+    },
+    {
+      "id": "tableau",
+      "type": "array_new",
+      "x": 640,
+      "y": 350,
+      "props": {
+        "items": "4, 8, 15, 16"
+      }
+    },
+    {
+      "id": "set",
+      "type": "set_var",
+      "x": 80,
+      "y": 520,
+      "props": {
+        "name": "total"
+      }
+    },
+    {
+      "id": "addition",
+      "type": "math",
+      "x": 430,
+      "y": 540,
+      "props": {
+        "op": "+"
+      }
+    },
+    {
+      "id": "lireTotal",
+      "type": "get_var",
+      "x": 760,
+      "y": 560,
+      "props": {
+        "name": "total"
+      }
+    },
+    {
+      "id": "lireElement",
+      "type": "get_var",
+      "x": 760,
+      "y": 660,
+      "props": {
+        "name": "element"
+      }
+    },
+    {
+      "id": "afficher",
+      "type": "print",
+      "x": 80,
+      "y": 700,
+      "props": {}
+    },
+    {
+      "id": "lireResultat",
+      "type": "get_var",
+      "x": 430,
+      "y": 720,
+      "props": {
+        "name": "total"
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": "w1",
+      "from": {
+        "node": "start",
+        "pin": "out"
+      },
+      "to": {
+        "node": "decl",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w2",
+      "from": {
+        "node": "decl",
+        "pin": "out"
+      },
+      "to": {
+        "node": "each",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w3",
+      "from": {
+        "node": "tableau",
+        "pin": "value"
+      },
+      "to": {
+        "node": "each",
+        "pin": "array"
+      }
+    },
+    {
+      "id": "w4",
+      "from": {
+        "node": "each",
+        "pin": "body"
+      },
+      "to": {
+        "node": "set",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w5",
+      "from": {
+        "node": "addition",
+        "pin": "result"
+      },
+      "to": {
+        "node": "set",
+        "pin": "value"
+      }
+    },
+    {
+      "id": "w6",
+      "from": {
+        "node": "lireTotal",
+        "pin": "value"
+      },
+      "to": {
+        "node": "addition",
+        "pin": "a"
+      }
+    },
+    {
+      "id": "w7",
+      "from": {
+        "node": "lireElement",
+        "pin": "value"
+      },
+      "to": {
+        "node": "addition",
+        "pin": "b"
+      }
+    },
+    {
+      "id": "w8",
+      "from": {
+        "node": "each",
+        "pin": "done"
+      },
+      "to": {
+        "node": "afficher",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "w9",
+      "from": {
+        "node": "lireResultat",
+        "pin": "value"
+      },
+      "to": {
+        "node": "afficher",
+        "pin": "value"
+      }
+    }
+  ]
+}

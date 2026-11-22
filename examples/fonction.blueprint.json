@@ -1,0 +1,341 @@
+{
+  "format": "blueprint-studio",
+  "version": 1,
+  "name": "Fonction et condition",
+  "nodes": [
+    {
+      "id": "fdef",
+      "type": "function_def",
+      "x": 80,
+      "y": 60,
+      "props": {
+        "name": "est_pair",
+        "params": "n: int",
+        "rettype": "bool"
+      }
+    },
+    {
+      "id": "retour",
+      "type": "return_value",
+      "x": 80,
+      "y": 220,
+      "props": {}
+    },
+    {
+      "id": "cmp",
+      "type": "compare",
+      "x": 430,
+      "y": 240,
+      "props": {
+        "op": "=="
+      }
+    },
+    {
+      "id": "zéro",
+      "type": "literal_number",
+      "x": 760,
+      "y": 250,
+      "props": {
+        "value": "0"
+      }
+    },
+    {
+      "id": "modulo",
+      "type": "math",
+      "x": 430,
+      "y": 420,
+      "props": {
+        "op": "%"
+      }
+    },
+    {
+      "id": "lireN",
+      "type": "get_var",
+      "x": 760,
+      "y": 430,
+      "props": {
+        "name": "n"
+      }
+    },
+    {
+      "id": "deux",
+      "type": "literal_number",
+      "x": 430,
+      "y": 560,
+      "props": {
+        "value": "2"
+      }
+    },
+    {
+      "id": "start",
+      "type": "event_start",
+      "x": 80,
+      "y": 660,
+      "props": {}
+    },
+    {
+      "id": "declR",
+      "type": "var_decl",
+      "x": 80,
+      "y": 800,
+      "props": {
+        "name": "r",
+        "vtype": "bool"
+      }
+    },
+    {
+      "id": "setR",
+      "type": "set_var",
+      "x": 80,
+      "y": 930,
+      "props": {
+        "name": "r"
+      }
+    },
+    {
+      "id": "appel",
+      "type": "call_func",
+      "x": 430,
+      "y": 950,
+      "props": {
+        "name": "est_pair",
+        "args": "n"
+      }
+    },
+    {
+      "id": "sept",
+      "type": "literal_number",
+      "x": 760,
+      "y": 970,
+      "props": {
+        "value": "7"
+      }
+    },
+    {
+      "id": "si",
+      "type": "branch",
+      "x": 80,
+      "y": 1090,
+      "props": {}
+    },
+    {
+      "id": "lireR",
+      "type": "get_var",
+      "x": 430,
+      "y": 1110,
+      "props": {
+        "name": "r"
+      }
+    },
+    {
+      "id": "pair",
+      "type": "print",
+      "x": 80,
+      "y": 1270,
+      "props": {}
+    },
+    {
+      "id": "textePair",
+      "type": "literal_string",
+      "x": 500,
+      "y": 1290,
+      "props": {
+        "value": "C'est pair"
+      }
+    },
+    {
+      "id": "impair",
+      "type": "print",
+      "x": 80,
+      "y": 1420,
+      "props": {}
+    },
+    {
+      "id": "texteImpair",
+      "type": "literal_string",
+      "x": 500,
+      "y": 1440,
+      "props": {
+        "value": "C'est impair"
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": "f1",
+      "from": {
+        "node": "fdef",
+        "pin": "body"
+      },
+      "to": {
+        "node": "retour",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "f2",
+      "from": {
+        "node": "cmp",
+        "pin": "result"
+      },
+      "to": {
+        "node": "retour",
+        "pin": "value"
+      }
+    },
+    {
+      "id": "f3",
+      "from": {
+        "node": "modulo",
+        "pin": "result"
+      },
+      "to": {
+        "node": "cmp",
+        "pin": "a"
+      }
+    },
+    {
+      "id": "f4",
+      "from": {
+        "node": "zéro",
+        "pin": "value"
+      },
+      "to": {
+        "node": "cmp",
+        "pin": "b"
+      }
+    },
+    {
+      "id": "f5",
+      "from": {
+        "node": "lireN",
+        "pin": "value"
+      },
+      "to": {
+        "node": "modulo",
+        "pin": "a"
+      }
+    },
+    {
+      "id": "f6",
+      "from": {
+        "node": "deux",
+        "pin": "value"
+      },
+      "to": {
+        "node": "modulo",
+        "pin": "b"
+      }
+    },
+    {
+      "id": "m1",
+      "from": {
+        "node": "start",
+        "pin": "out"
+      },
+      "to": {
+        "node": "declR",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "m2",
+      "from": {
+        "node": "declR",
+        "pin": "out"
+      },
+      "to": {
+        "node": "setR",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "m3",
+      "from": {
+        "node": "appel",
+        "pin": "result"
+      },
+      "to": {
+        "node": "setR",
+        "pin": "value"
+      }
+    },
+    {
+      "id": "m4",
+      "from": {
+        "node": "sept",
+        "pin": "value"
+      },
+      "to": {
+        "node": "appel",
+        "pin": "arg:n"
+      }
+    },
+    {
+      "id": "m5",
+      "from": {
+        "node": "setR",
+        "pin": "out"
+      },
+      "to": {
+        "node": "si",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "m6",
+      "from": {
+        "node": "lireR",
+        "pin": "value"
+      },
+      "to": {
+        "node": "si",
+        "pin": "cond"
+      }
+    },
+    {
+      "id": "m7",
+      "from": {
+        "node": "si",
+        "pin": "true"
+      },
+      "to": {
+        "node": "pair",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "m8",
+      "from": {
+        "node": "textePair",
+        "pin": "value"
+      },
+      "to": {
+        "node": "pair",
+        "pin": "value"
+      }
+    },
+    {
+      "id": "m9",
+      "from": {
+        "node": "si",
+        "pin": "false"
+      },
+      "to": {
+        "node": "impair",
+        "pin": "in"
+      }
+    },
+    {
+      "id": "m10",
+      "from": {
+        "node": "texteImpair",
+        "pin": "value"
+      },
+      "to": {
+        "node": "impair",
+        "pin": "value"
+      }
+    }
+  ]
+}

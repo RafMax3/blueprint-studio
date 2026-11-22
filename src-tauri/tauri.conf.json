@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Blueprint Studio",
+  "version": "1.0.0",
+  "identifier": "com.blueprintstudio.app",
+  "build": {
+    "frontendDist": "../app"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/icon.ico"],
+    "publisher": "Blueprint Studio",
+    "copyright": "© 2026 — Tous droits réservés",
+    "shortDescription": "Éditeur de graphes de nœuds vers Python, C# et C++",
+    "longDescription": "Blueprint Studio assembles des programmes par nœuds et génère du code Python, C# et C++ prêt à exécuter.",
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper", "silent": true },
+      "nsis": {
+        "languages": ["French"],
+        "displayLanguageSelector": false,
+        "installMode": "currentUser"
+      }
+    }
+  }
+}

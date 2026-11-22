@@ -1,0 +1,30 @@
+[package]
+name = "blueprint-studio"
+version = "1.0.0"
+description = "Éditeur de graphes de nœuds qui génère du Python, C# et C++"
+edition = "2021"
+rust-version = "1.77"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Boîte de message Windows pour signaler une erreur de démarrage (WebView2 absent).
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_UI_WindowsAndMessaging"] }
+
+# Binaire le plus compact possible : optimisé pour la taille, LTO total,
+# une seule unité de code et symboles retirés.
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
